@@ -39,13 +39,15 @@ class WalletControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    String authorization="Bearer eyierei";
+
     @Test
     void shouldCreateWalletSuccessfully() {
         WalletRequest request = new WalletRequest("John Doe", "USD", "documentNumber");
         Wallet wallet = new Wallet("1", BigDecimal.ZERO, "John Doe", "USD", "documentNumber");
         when(walletService.createWallet(request)).thenReturn(wallet);
 
-        ResponseEntity<WalletResponse> response = walletController.createWallet(request);
+        ResponseEntity<WalletResponse> response = walletController.createWallet(request,authorization);
 
         WalletResponse responseBody = response.getBody();
 
@@ -68,7 +70,7 @@ class WalletControllerTest {
         wallet.setDocumentNumber("document");
         when(walletService.getWalletById(walletId)).thenReturn(wallet);
 
-        ResponseEntity<BalanceResponse> response = walletController.getBalance(walletId);
+        ResponseEntity<BalanceResponse> response = walletController.getBalance(walletId,authorization);
 
         assertEquals(new BigDecimal(500), Objects.requireNonNull(response.getBody()).getBalance());
         verify(walletService).getWalletById(walletId);
@@ -81,7 +83,7 @@ class WalletControllerTest {
         Deposit deposit = new Deposit(walletId, "full name", "documentNumber", new BigDecimal("100.0"));
         when(walletService.deposit(walletId, request.getDepositAmount())).thenReturn(deposit);
 
-        ResponseEntity<DepositResponse> response = walletController.deposit(walletId, request);
+        ResponseEntity<DepositResponse> response = walletController.deposit(walletId, request,authorization);
 
         assertEquals("full name", Objects.requireNonNull(response.getBody()).getFullName());
         verify(walletService).deposit(walletId, request.getDepositAmount());
@@ -98,7 +100,7 @@ class WalletControllerTest {
 
         when(walletService.withdraw(walletId, request.getWithdrawalAmount())).thenReturn(withdraw);
 
-        ResponseEntity<WithdrawResponse> response = walletController.withdraw(walletId, request);
+        ResponseEntity<WithdrawResponse> response = walletController.withdraw(walletId, request,authorization);
 
         assertEquals("Full name", Objects.requireNonNull(response.getBody()).getFullName());
         verify(walletService).withdraw(walletId, request.getWithdrawalAmount());
@@ -113,7 +115,7 @@ class WalletControllerTest {
                 request.getReceiverWalletId(),
                 request.getAmount())).thenReturn(transfer);
 
-        TransferResponse response = walletController.transfer(request).getBody();
+        TransferResponse response = walletController.transfer(request,authorization).getBody();
 
         assert response != null;
         assertEquals("SenderFullName", response.getSenderFullName());
@@ -130,7 +132,7 @@ class WalletControllerTest {
         when(walletService.createWallet(invalidRequest)).thenThrow(new IllegalArgumentException("Invalid data"));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            walletController.createWallet(invalidRequest);
+            walletController.createWallet(invalidRequest,authorization);
         });
 
         assertEquals("Invalid data", exception.getMessage());
