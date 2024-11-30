@@ -2,11 +2,10 @@ package com.noceli.diego.wallet.controller;
 
 import com.noceli.diego.wallet.model.Deposit;
 import com.noceli.diego.wallet.model.Transfer;
-import com.noceli.diego.wallet.model.Wallet;
 import com.noceli.diego.wallet.model.Withdraw;
-import com.noceli.diego.wallet.model.request.WalletRequest;
 import com.noceli.diego.wallet.model.request.DepositRequest;
 import com.noceli.diego.wallet.model.request.TransferRequest;
+import com.noceli.diego.wallet.model.request.WalletRequest;
 import com.noceli.diego.wallet.model.request.WithdrawRequest;
 import com.noceli.diego.wallet.model.response.*;
 import com.noceli.diego.wallet.service.WalletService;
@@ -16,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import static com.noceli.diego.wallet.helper.ResponseConverter.convertToResponse;
 
 @RestController
-@RequestMapping("/wallets")
+@RequestMapping(WalletController.BASE_URI)
 public class WalletController {
     private final WalletService walletService;
-// TODO: Implement integration tests for WalletController class
+    static final String BASE_URI = "/wallets";
 
     public WalletController(WalletService walletService) {
         this.walletService = walletService;
@@ -27,26 +26,24 @@ public class WalletController {
 
     @PostMapping
     public ResponseEntity<WalletResponse> createWallet(@RequestBody WalletRequest walletRequest) {
-        Wallet wallet = walletService.createWallet(walletRequest);
-        return ResponseEntity.ok(convertToResponse(wallet));
+        return ResponseEntity.ok(convertToResponse(walletService.createWallet(walletRequest)));
     }
 
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<BalanceResponse> getBalance(@PathVariable String id) {
-        BalanceResponse response= new BalanceResponse(walletService.getWallet(id).getBalance());
-        return ResponseEntity.ok(response);
+    @GetMapping("/{walletId}/balance")
+    public ResponseEntity<BalanceResponse> getBalance(@PathVariable String walletId) {
+        return ResponseEntity.ok(new BalanceResponse(walletService.getWallet(walletId).getBalance()));
     }
 
     @PostMapping("/{walletId}/deposit")
     public ResponseEntity<DepositResponse> deposit(@PathVariable String walletId, @RequestBody DepositRequest depositRequest) {
-        Deposit deposit=walletService.deposit(walletId, depositRequest.getDepositAmount());
+        Deposit deposit = walletService.deposit(walletId, depositRequest.getDepositAmount());
         return ResponseEntity.ok(convertToResponse(deposit));
     }
 
-    @PostMapping("/{id}/withdraw")
-    public ResponseEntity<WithdrawResponse> withdraw(@PathVariable String id, @RequestBody WithdrawRequest withdrawRequest) {
-        Withdraw withdraw=walletService.withdraw(id, withdrawRequest.getWithdrawalAmount());
-        return ResponseEntity.ok(convertToResponse(withdraw));
+    @PostMapping("/{walletId}/withdraw")
+    public ResponseEntity<WithdrawResponse> withdraw(@PathVariable String walletId, @RequestBody WithdrawRequest withdrawRequest) {
+        Withdraw withdrawal = walletService.withdraw(walletId, withdrawRequest.getWithdrawalAmount());
+        return ResponseEntity.ok(convertToResponse(withdrawal));
     }
 
     @PostMapping("/transfer")
