@@ -1,6 +1,5 @@
 package com.noceli.diego.wallet.service;
 
-
 import com.noceli.diego.wallet.exception.InsufficientBalanceException;
 import com.noceli.diego.wallet.exception.WalletNotFoundException;
 import com.noceli.diego.wallet.model.Deposit;
@@ -32,6 +31,47 @@ public class WalletService {
     public Wallet createWallet(WalletRequest walletRequest) {
         WalletEntity walletEntity = new WalletEntity(walletRequest);
         walletEntity = walletRepository.save(walletEntity);
+        return convertToWallet(walletEntity);
+    }
+
+    public WalletEntity getWalletById(String walletId) {
+        return walletRepository.findByUserId(walletId)
+                .orElseThrow(() -> new WalletNotFoundException(walletId));
+    }
+
+    @Transactional
+    public Deposit deposit(String walletId, BigDecimal amount) {
+        WalletEntity wallet = getWalletById(walletId);
+        updateWalletBalance(wallet, wallet.getBalance().add(amount));
+        saveTransaction(wallet, TransactionType.DEPOSIT, amount);
+        return new Deposit(wallet.getUserId(), getFullName(wallet), wallet.getDocumentNumber(), amount);
+    }
+
+    @Transactional
+    public Withdraw withdraw(String walletId, BigDecimal amount) {
+        WalletEntity wallet = getWalletById(walletId);
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientBalanceException(walletId);
+        }
+        updateWalletBalance(wallet, wallet.getBalance().subtract(amount));
+        saveTransaction(wallet, TransactionType.WITHDRAWAL, amount);
+        return new Withdraw(walletId, getFullName(wallet), wallet.getDocumentNumber(), wallet.getBalance());
+    }
+
+    @Transactional
+    public Transfer transfer(String fromWalletId, String toWalletId, BigDecimal amount) {
+        withdraw(fromWalletId, amount);
+        deposit(toWalletId, amount);
+        WalletEntity fromWallet = getWalletById(fromWalletId);
+        WalletEntity toWallet = getWalletById(toWalletId);
+        return new Transfer(getFullName(fromWallet), getFullName(toWallet), amount);
+    }
+
+    private String getFullName(WalletEntity wallet) {
+        return wallet.getName() + " " + wallet.getSurname();
+    }
+
+    private Wallet convertToWallet(WalletEntity walletEntity) {
         return new Wallet(
                 walletEntity.getUserId(),
                 walletEntity.getBalance(),
@@ -41,58 +81,12 @@ public class WalletService {
         );
     }
 
-    public WalletEntity getWallet(String walletId) {
-        return walletRepository.findByUserId(walletId)
-                .orElseThrow(() -> new WalletNotFoundException(walletId));
-    }
-
-    @Transactional
-    public Deposit deposit(String walletId, BigDecimal amount) {
-        WalletEntity wallet = walletRepository.findByUserId(walletId)
-                .orElseThrow(() -> new WalletNotFoundException(walletId));
-        wallet.setBalance(wallet.getBalance().add(amount));
+    private void updateWalletBalance(WalletEntity wallet, BigDecimal newBalance) {
+        wallet.setBalance(newBalance);
         walletRepository.save(wallet);
-
-        transactionRepository.save(new TransactionEntity(wallet, TransactionType.DEPOSIT, amount, LocalDateTime.now()));
-        return new Deposit(wallet.getUserId(), getFullName(wallet), wallet.getDocumentNumber(), amount);
     }
 
-    @Transactional
-    public Withdraw withdraw(String walletId, BigDecimal amount) {
-        WalletEntity wallet = walletRepository.findByUserId(walletId)
-                .orElseThrow(() -> new WalletNotFoundException(walletId));
-        if (wallet.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientBalanceException(walletId);
-        }
-
-        wallet.setBalance(wallet.getBalance().subtract(amount));
-        walletRepository.save(wallet);
-
-        TransactionEntity transaction = transactionRepository.save(
-                new TransactionEntity(wallet,
-                        TransactionType.WITHDRAWAL,
-                        amount,
-                        LocalDateTime.now()
-                ));
-
-        return new Withdraw(
-                walletId,
-                getFullName(wallet),
-                wallet.getDocumentNumber(),
-                wallet.getBalance());
-    }
-
-    @Transactional
-    public Transfer transfer(String fromWalletId, String toWalletId, BigDecimal amount) {
-        withdraw(fromWalletId, amount);
-        deposit(toWalletId, amount);
-        WalletEntity fromWallet = getWallet(fromWalletId);
-        WalletEntity toWallet = getWallet(toWalletId);
-        return new Transfer(getFullName(fromWallet), getFullName(toWallet), amount);
-    }
-
-
-    private String getFullName(WalletEntity wallet) {
-        return wallet.getName() + " " + wallet.getSurname();
+    private void saveTransaction(WalletEntity wallet, TransactionType type, BigDecimal amount) {
+        transactionRepository.save(new TransactionEntity(wallet, type, amount, LocalDateTime.now()));
     }
 }
