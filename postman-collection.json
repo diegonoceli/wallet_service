@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Wallet API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Wallet",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/wallets",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["wallets"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"John\", \"surname\": \"Doe\", \"documentNumber\": \"1234567890\"}"
+        }
+      }
+    },
+    {
+      "name": "Get Balance",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/wallets/1/balance",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["wallets", "1", "balance"]
+        }
+      }
+    },
+    {
+      "name": "Deposit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/wallets/1/deposit",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["wallets", "1", "deposit"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"depositAmount\": 100.00}"
+        }
+      }
+    },
+    {
+      "name": "Withdraw",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/wallets/1/withdraw",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["wallets", "1", "withdraw"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"withdrawalAmount\": 50.00}"
+        }
+      }
+    },
+    {
+      "name": "Transfer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/wallets/transfer",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["wallets", "transfer"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"senderWalletId\": \"1\", \"receiverWalletId\": \"2\", \"amount\": 25.00}"
+        }
+      }
+    }
+  ]
+}

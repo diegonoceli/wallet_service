@@ -1,0 +1,21 @@
+-- Create Wallet Table
+CREATE TABLE wallet (
+    id BIGSERIAL PRIMARY KEY,
+    user_id VARCHAR(40) NOT NULL UNIQUE,
+    balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
+    name VARCHAR(30) NOT NULL,
+    surname VARCHAR(30) NOT NULL,
+    document_number VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Transaction Table
+CREATE TABLE transaction (
+    id BIGSERIAL PRIMARY KEY,
+    wallet_id BIGINT NOT NULL REFERENCES wallet(id) ON DELETE CASCADE,
+    type VARCHAR(20) NOT NULL,
+    amount DECIMAL(18, 2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    description TEXT
+);
