@@ -31,7 +31,7 @@ public class WalletController {
 
     @GetMapping("/{walletId}/balance")
     public ResponseEntity<BalanceResponse> getBalance(@PathVariable String walletId) {
-        return ResponseEntity.ok(new BalanceResponse(walletService.getWallet(walletId).getBalance()));
+        return ResponseEntity.ok(new BalanceResponse(walletService.getWalletById(walletId).getBalance()));
     }
 
     @PostMapping("/{walletId}/deposit")

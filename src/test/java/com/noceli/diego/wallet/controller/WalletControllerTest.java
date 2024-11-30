@@ -66,12 +66,12 @@ class WalletControllerTest {
         wallet.setName("John");
         wallet.setSurname("Doe");
         wallet.setDocumentNumber("document");
-        when(walletService.getWallet(walletId)).thenReturn(wallet);
+        when(walletService.getWalletById(walletId)).thenReturn(wallet);
 
         ResponseEntity<BalanceResponse> response = walletController.getBalance(walletId);
 
         assertEquals(new BigDecimal(500), Objects.requireNonNull(response.getBody()).getBalance());
-        verify(walletService).getWallet(walletId);
+        verify(walletService).getWalletById(walletId);
     }
 
     @Test

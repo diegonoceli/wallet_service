@@ -69,7 +69,7 @@ class WalletServiceTest {
 
         when(walletRepository.findByUserId("usr123")).thenReturn(Optional.of(walletEntity));
 
-        var result = walletService.getWallet("usr123");
+        var result = walletService.getWalletById("usr123");
 
         assertNotNull(result);
         assertEquals("usr123", result.getUserId());
@@ -80,7 +80,7 @@ class WalletServiceTest {
     void getWallet_ShouldThrowException_WhenWalletNotFound() {
         when(walletRepository.findByUserId("usr123")).thenReturn(Optional.empty());
 
-        assertThrows(WalletNotFoundException.class, () -> walletService.getWallet("usr123"));
+        assertThrows(WalletNotFoundException.class, () -> walletService.getWalletById("usr123"));
     }
 
     @Test
