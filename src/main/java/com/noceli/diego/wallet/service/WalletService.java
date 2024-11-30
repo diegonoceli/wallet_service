@@ -79,7 +79,7 @@ public class WalletService {
                 walletId,
                 getFullName(wallet),
                 wallet.getDocumentNumber(),
-                transaction.getAmount());
+                wallet.getBalance());
     }
 
     @Transactional

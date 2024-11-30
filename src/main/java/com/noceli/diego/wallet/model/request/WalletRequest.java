@@ -1,10 +1,12 @@
 package com.noceli.diego.wallet.model.request;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class WalletRequest {
     private String name;
     private String surname;

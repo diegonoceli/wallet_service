@@ -1,6 +1,5 @@
-package com.noceli.diego.wallet.service;
+package com.noceli.diego.wallet.controller;
 
-import com.noceli.diego.wallet.controller.WalletController;
 import com.noceli.diego.wallet.model.Deposit;
 import com.noceli.diego.wallet.model.Transfer;
 import com.noceli.diego.wallet.model.Wallet;
@@ -11,6 +10,7 @@ import com.noceli.diego.wallet.model.request.TransferRequest;
 import com.noceli.diego.wallet.model.request.WalletRequest;
 import com.noceli.diego.wallet.model.request.WithdrawRequest;
 import com.noceli.diego.wallet.model.response.*;
+import com.noceli.diego.wallet.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static com.noceli.diego.wallet.helper.ResponseConverter.convertToResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -48,12 +47,12 @@ class WalletControllerTest {
 
         ResponseEntity<WalletResponse> response = walletController.createWallet(request);
 
-        WalletResponse responseBody=response.getBody();
+        WalletResponse responseBody = response.getBody();
 
         assert responseBody != null;
-        assertEquals("John Doe",responseBody.getName());
-        assertEquals("USD",responseBody.getSurname());
-        assertEquals("documentNumber",responseBody.getDocumentNumber());
+        assertEquals("John Doe", responseBody.getName());
+        assertEquals("USD", responseBody.getSurname());
+        assertEquals("documentNumber", responseBody.getDocumentNumber());
         verify(walletService).createWallet(request);
     }
 
@@ -61,7 +60,7 @@ class WalletControllerTest {
     void shouldReturnCorrectBalanceForWallet() {
         String walletId = "1";
 
-        WalletEntity wallet = new WalletEntity() ;
+        WalletEntity wallet = new WalletEntity();
         wallet.setUserId(walletId);
         wallet.setBalance(new BigDecimal(500));
         wallet.setName("John");
@@ -79,7 +78,7 @@ class WalletControllerTest {
     void shouldDepositAmountSuccessfully() {
         String walletId = "1";
         DepositRequest request = new DepositRequest(new BigDecimal(100));
-        Deposit deposit = new Deposit(walletId, "full name","documentNumber",new BigDecimal("100.0"));
+        Deposit deposit = new Deposit(walletId, "full name", "documentNumber", new BigDecimal("100.0"));
         when(walletService.deposit(walletId, request.getDepositAmount())).thenReturn(deposit);
 
         ResponseEntity<DepositResponse> response = walletController.deposit(walletId, request);
