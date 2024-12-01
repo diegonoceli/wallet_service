@@ -22,6 +22,32 @@ services:
     networks:
       - integration
 
+
+  app:
+    container_name: wallet-app
+    build: .
+    depends_on:
+      - flyway
+    ports:
+      - "8080:8080"
+    networks:
+      - integration
+    volumes:
+      - ./:/app
+      - build:/buildDir
+    environment:
+      - GRADLE_OPTS=-Dorg.gradle.project.buildDir=/buildDir/build
+      - SPRING_PROFILES_ACTIVE=local
+      - DB_HOST=wallet-postgresql
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+    command: sh gradlew --no-daemon bootRun
+
 networks:
   integration:
-    driver: bridge
+    external: true
+
+volumes:
+  build:
