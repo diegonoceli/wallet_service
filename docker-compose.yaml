@@ -47,7 +47,7 @@ services:
 
 networks:
   integration:
-    external: true
+    driver: bridge
 
 volumes:
   build:
