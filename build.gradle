@@ -39,15 +39,21 @@ dependencies {
     testImplementation("io.zonky.test:embedded-postgres:2.0.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.flywaydb.flyway-test-extensions:flyway-spring-test:7.0.0")
-    testImplementation("org.flywaydb:flyway-core:8.5.12")
+    testImplementation 'org.testcontainers:testcontainers:1.17.6'
+    testImplementation 'org.testcontainers:postgresql:1.17.6'
 
 }
 
+String dbHost = System.getenv("DB_HOST") ?: "localhost"
+String dbPort = System.getenv("DB_PORT") ?: 5432
+String dbName = System.getenv("DB_NAME") ?: "postgres"
+String dbUser = System.getenv("DB_USER") ?: "postgres"
+String dbPassword = System.getenv("DB_PASSWORD") ?: "password"
+
 flyway {
-    url = 'jdbc:postgresql://localhost:5432/postgres'
-    user = 'postgres'
-    password = 'password'
-    locations = ['classpath:db/migration']
+    url = "jdbc:postgresql://$dbHost:$dbPort/$dbName"
+    user = dbUser
+    password = dbPassword
 }
 
 tasks.named('test') {

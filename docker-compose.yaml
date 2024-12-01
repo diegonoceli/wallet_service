@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-
   wallet-postgresql:
     image: postgres:14
     environment:
@@ -10,23 +9,32 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    networks:
+      - integration
 
-  app:
-    container_name: wallet_service
-    build: .
+  flyway:
+    image: flyway/flyway:latest
+    command: -url=jdbc:postgresql://wallet-postgresql:5432/postgres -user=postgres -password=password migrate
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql
     depends_on:
       - wallet-postgresql
-      - local-setup
-    ports:
-      - "8081:8081"
     networks:
-      - default
+      - integration
+
+
+  app:
+    container_name: wallet-app
+    build: .
+    depends_on:
+      - flyway
+    ports:
+      - "8080:8080"
+    networks:
       - integration
     volumes:
       - ./:/app
       - build:/buildDir
-      - gradle-cache:/root/.gradle
-      - ~/.gradle/gradle.properties:/root/.gradle/gradle.properties
     environment:
       - GRADLE_OPTS=-Dorg.gradle.project.buildDir=/buildDir/build
       - SPRING_PROFILES_ACTIVE=local
@@ -34,29 +42,12 @@ services:
       - DB_PORT=5432
       - DB_NAME=postgres
       - DB_USER=postgres
-      - DB_PASSWORD=
-    command: sh gradlew --no-daemon bootRun
-
-  local-setup:
-    build: .
-    depends_on:
-      - wallet-postgresql
-    volumes:
-      - ./:/app
-      - gradle-cache:/root/.gradle
-      - ~/.gradle/gradle.properties:/root/.gradle/gradle.properties
-    environment:
-      - DB_HOST=wallet-postgresql
-      - DB_PORT=5432
-      - DB_NAME=postgres
-      - DB_USER=postgres
       - DB_PASSWORD=password
-    command: sh gradlew --no-daemon flywayMigrate -i
+    command: sh gradlew --no-daemon bootRun
 
 networks:
   integration:
-    external: true
+    driver: bridge
 
 volumes:
   build:
-  gradle-cache:
